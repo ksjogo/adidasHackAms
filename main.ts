@@ -1,6 +1,10 @@
 import * as serial from 'serialport'
 import fetch from 'node-fetch'
-import * as  ws from 'ws'
+import * as ws from 'ws'
+
+let wss: ws.Server
+let browser: ws
+
 let port: serial
 
 port = new serial('/dev/cu.usbmodem1422', {
@@ -8,6 +12,15 @@ port = new serial('/dev/cu.usbmodem1422', {
 }, error)
 port.on('error', error)
 port.on('data', data)
+
+wss = new ws.Server({ port: 8085 })
+wss.on('connection', function connection (socket) {
+    socket.on('message', function incoming (message) {
+        console.log('received: %s', message)
+    })
+    browser = socket
+    browser.send(JSON.stringify('websocket connected'))
+})
 
 function error (err: any) {
     if (err) {
@@ -21,7 +34,12 @@ function error (err: any) {
 async function command (command: string, arg: string) {
     console.log(command, arg)
     switch (command) {
-        case 'removed':
+        case 'occupied':
+            if (browser)
+                browser.send(JSON.stringify({
+                    command: 'occupied',
+                    arg: parseInt(arg, 10) > 0,
+                }))
             break
         default:
             break
