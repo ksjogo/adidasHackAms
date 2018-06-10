@@ -11,14 +11,21 @@
       var event = JSON.parse(event.data);
       if (typeof event === 'string') {
         console.log(event)
-        alert(event)
+        //alert(event)
       } else {
         switch (event.command) {
           case 'occupied':
-            if (event.arg)
-              alert("now occupied")
-            else
-              alert("not occupied")
+            if (event.arg) {
+              console.log("now occupied")
+            }
+            else {
+              console.log("not occupied")
+              debugger
+              $('#adidas_carousel').carousel('next');
+              setTimeout(function () {
+                $('#adidas_carousel').carousel('next');
+              }, 16000)
+            }
             break
           default:
         }
